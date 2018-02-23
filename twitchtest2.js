@@ -1,19 +1,10 @@
 //RUN OUR jquery
 //Client ID for twitch username kungungo=7rmddok8k7yq2s14vb3ae5wwzuv4pf
-$(function(){
-  //USERS
-    // $.getJSON("https://api.twitch.tv/kraken/users/freecodecamp?client_id=7rmddok8k7yq2s14vb3ae5wwzuv4pf").done(function(data){
-    //   console.log(data);
-    // })
-
-    //var streams = ["loltyler1", "aXtLOL", "pokimane", "Shiphtur", "NoWay4u_Sir"];
-    //var streams = [];
-
-    //top 10 games
-
+$(document).ready(function(){
+//top 10 games
     $.ajax({
       type: 'GET',
-      url: 'https://api.twitch.tv/kraken/games/top',
+      url: 'https://api.twitch.tv/kraken/games/top'+'?limit=50',
       headers: {
         'Client-ID': '7rmddok8k7yq2s14vb3ae5wwzuv4pf'
       },
@@ -22,7 +13,7 @@ $(function(){
         for(var i= 0; i < data.top.length; i++){
           var name = data.top[i].game.name;
 
-          $("#game_title").append(name +"<br>");
+          $("#game_title").append(i+1+") "+'<a target = "blank" href = "twitchchannel.php?id=' + name + '">' + name + '</a><br>');
           $("#number_live_ch").append('<a target = "blank" href = "https://www.twitch.tv/directory/game/' + name + '">' + data.top[i].channels + '</a><br>');
           //$("#number_live_ch").append(data.top[i].channels + "<br>");
           $("#views_game").append(data.top[i].viewers + "<br>");
