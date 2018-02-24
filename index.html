@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Twitch App</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="twitchtest.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="twitchtest.js" type="text/javascript"></script>
+  <script src="twitchtest2.js" type="text/javascript"></script>
+</head>
+
+<!--style-->
+<style>
+div{
+  font-size: 15px;
+}
+</style>
+<body>
+  <div class="page container-fluid">
+    <div class="spacer"></div>
+    <div class="block text-center">
+        <h1>TwitchDB APP For Streamers Who Wanna Stream!</h1>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div style="width:90%" class="block">
+      <p style="text-align:center"><u>TOP 50 GAMES CURRENTLY STREAMED</u>
+        <!-- <input style="margin-left:20px ; background-color: gray" type="button" onclick="location.href='twitchgame.html';" value="Top 100 Games" /> -->
+      </p>
+      <div class="row">
+        <div class="col-md-6" id="game_title">
+          Game:<br>
+        </div>
+        <div class="col-md-4" id="number_live_ch">
+          Number of Channels:<br>
+        </div>
+        <div class="col-md-2" id="views_game">
+          Viewers:<br>
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div style="width: 100%" class="block">
+      <p style="text-align:center"><u> THE TOP CHANNEL FOR EACH GAME CURRENTLY STREAMING </u></p>
+      <div class="row">
+        <div class="col-md-3" id="channel_name">
+          <u>Channel Name:</u><br>
+        </div>
+        <div style="font-size: 15px" class="col-md-4" id="game_playing">
+          <u>Game Playing:</u><br>
+        </div>
+        <div class="col-md-1" id="views_channel">
+          <u>Viewers:</u><br>
+        </div>
+        <div class="col-md-1" id="up_time">
+          <u>Uptime:</u><br>
+        </div>
+        <div class="col-md-2" id="broadcast_lang">
+          <u>Language:</u><br>
+        </div>
+        <div class="col-md-1" id="num_followers">
+          <u>Followers:</u><br>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <form method="POST" name="myForm" id="myForm" action="twitchdatabase.php">
+    <div id="u_id"></div>
+    <div id="lang"></div>
+    <div id="displayname"></div>
+    <div id="followers"></div>
+    <div id="maturity"></div>
+    <div id="u_name"></div>
+    <div id="url"></div>
+    <div id="views"></div>
+
+  </form>
+
+
+
+  <script>
+  var gametitle=[];
+
+  $(function(){
+      //top 25 streams
+      $.ajax({
+        type: 'GET',
+        url: 'https://api.twitch.tv/kraken/games/top?limit=50',
+        headers: {
+          'Client-ID': '7rmddok8k7yq2s14vb3ae5wwzuv4pf'
+        },
+        success: function(datag){
+          console.log(datag);
+
+          for(var i= 0; i < datag.top.length; i++){ //iterate through each game
+            //console.log(data.top.length);
+            if(datag.top[i] != null){
+                var name = datag.top[i].game.name;
+                console.log(name);
+                gametitle.push(name);
+          }
+          };
+
+          for(var g=0; g<15; g++){
+                              $(document).ready(function(){
+                                var gameTitle =  gametitle[g];
+                                alert(gameTitle);
+
+                                console.log(gameTitle);
+                                $.ajax({
+                                  type: 'GET',
+                                  url: 'https://api.twitch.tv/kraken/streams/?game='+gameTitle+'&limit=50',
+                                  headers: {
+                                    'Client-ID': '7rmddok8k7yq2s14vb3ae5wwzuv4pf'
+                                  },
+                                  success: function(data){
+                                    console.log(data);
+
+                                    //need for db
+                                    var u_id = document.getElementById("u_id");
+                                    var lang = document.getElementById("lang");
+                                    var displayname = document.getElementById("displayname");
+                                    var followers = document.getElementById("followers");
+                                    var maturity = document.getElementById("maturity");
+                                    var u_name = document.getElementById("u_name");
+                                    var url = document.getElementById("url");
+                                    var views = document.getElementById("views");
+
+                                    //don't need for db
+                                    for(var i= 0; i < data.streams.length; i++){
+
+
+                                      //need for db
+
+                                      var temp = document.createElement('INPUT');
+                                      temp.setAttribute("type", "hidden");
+                                      temp.setAttribute("value",  data.streams[i]._id);
+                                      temp.setAttribute("name", 'u_id[]');
+                                      u_id.appendChild(temp);
+
+                                      var temp2 = document.createElement('INPUT');
+                                      temp2.setAttribute("type", "hidden");
+                                      temp2.setAttribute("value",  convertLang(data.streams[i].channel.broadcaster_language));
+                                      temp2.setAttribute("name", 'bl[]');
+                                      lang.appendChild(temp2);
+
+                                      var temp3 = document.createElement('INPUT');
+                                      temp3.setAttribute("type", "hidden");
+                                      temp3.setAttribute("value",  data.streams[i].channel.display_name);
+                                      temp3.setAttribute("name", 'dn[]');
+                                      displayname.appendChild(temp3);
+
+                                      var temp4 = document.createElement('INPUT');
+                                      temp4.setAttribute("type", "hidden");
+                                      temp4.setAttribute("value",  data.streams[i].channel.followers);
+                                      temp4.setAttribute("name", 'f[]');
+                                      followers.appendChild(temp4);
+
+                                      var temp5 = document.createElement('INPUT');
+                                      temp5.setAttribute("type", "hidden");
+                                      temp5.setAttribute("value",  data.streams[i].channel.mature);
+                                      temp5.setAttribute("name", 'm[]');
+                                      maturity.appendChild(temp5);
+
+                                      var temp6 = document.createElement('INPUT');
+                                      temp6.setAttribute("type", "hidden");
+                                      temp6.setAttribute("value",  data.streams[i].channel.name);
+                                      temp6.setAttribute("name", 'n[]');
+                                      u_name.appendChild(temp6);
+
+                                      var temp7 = document.createElement('INPUT');
+                                      temp7.setAttribute("type", "hidden");
+                                      temp7.setAttribute("value",  data.streams[i].channel.url.substring(8, data.streams[i].channel.url.length) );
+                                      temp7.setAttribute("name", 'u[]');
+                                      url.appendChild(temp7);
+
+                                      var temp8 = document.createElement('INPUT');
+                                      temp8.setAttribute("type", "hidden");
+                                      temp8.setAttribute("value",  data.streams[i].channel.views);
+                                      temp8.setAttribute("name", 'v[]');
+                                      views.appendChild(temp8);
+                                    };
+
+                                    //var auto_refresh = setInterval(function(){submitform();}, 5000);
+
+                                    //function submitform(){
+
+                                    //}
+                                      document.forms["myForm"].submit();
+
+                                  }
+                                });
+
+
+                              });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          };
+
+
+
+
+
+        }
+      });
+  });
+
+
+//alert(gametitle.length);
+//for(var g = 0; g<gametitle.length; g++){
+// $(document).ready(function(){
+//   var gameTitle =  'Overwatch';
+//
+//   console.log(gameTitle);
+//   $.ajax({
+//     type: 'GET',
+//     url: 'https://api.twitch.tv/kraken/streams/?game='+gameTitle+'&limit=50',
+//     headers: {
+//       'Client-ID': '7rmddok8k7yq2s14vb3ae5wwzuv4pf'
+//     },
+//     success: function(data){
+//       console.log(data);
+//
+//       //need for db
+//       var u_id = document.getElementById("u_id");
+//       var lang = document.getElementById("lang");
+//       var displayname = document.getElementById("displayname");
+//       var followers = document.getElementById("followers");
+//       var maturity = document.getElementById("maturity");
+//       var u_name = document.getElementById("u_name");
+//       var url = document.getElementById("url");
+//       var views = document.getElementById("views");
+//
+//       //don't need for db
+//       for(var i= 0; i < data.streams.length; i++){
+//
+//
+//         //need for db
+//
+//         var temp = document.createElement('INPUT');
+//         temp.setAttribute("type", "hidden");
+//         temp.setAttribute("value",  data.streams[i]._id);
+//         temp.setAttribute("name", 'u_id[]');
+//         u_id.appendChild(temp);
+//
+//         var temp2 = document.createElement('INPUT');
+//         temp2.setAttribute("type", "hidden");
+//         temp2.setAttribute("value",  convertLang(data.streams[i].channel.broadcaster_language));
+//         temp2.setAttribute("name", 'bl[]');
+//         lang.appendChild(temp2);
+//
+//         var temp3 = document.createElement('INPUT');
+//         temp3.setAttribute("type", "hidden");
+//         temp3.setAttribute("value",  data.streams[i].channel.display_name);
+//         temp3.setAttribute("name", 'dn[]');
+//         displayname.appendChild(temp3);
+//
+//         var temp4 = document.createElement('INPUT');
+//         temp4.setAttribute("type", "hidden");
+//         temp4.setAttribute("value",  data.streams[i].channel.followers);
+//         temp4.setAttribute("name", 'f[]');
+//         followers.appendChild(temp4);
+//
+//         var temp5 = document.createElement('INPUT');
+//         temp5.setAttribute("type", "hidden");
+//         temp5.setAttribute("value",  data.streams[i].channel.mature);
+//         temp5.setAttribute("name", 'm[]');
+//         maturity.appendChild(temp5);
+//
+//         var temp6 = document.createElement('INPUT');
+//         temp6.setAttribute("type", "hidden");
+//         temp6.setAttribute("value",  data.streams[i].channel.name);
+//         temp6.setAttribute("name", 'n[]');
+//         u_name.appendChild(temp6);
+//
+//         var temp7 = document.createElement('INPUT');
+//         temp7.setAttribute("type", "hidden");
+//         temp7.setAttribute("value",  data.streams[i].channel.url.substring(8, data.streams[i].channel.url.length) );
+//         temp7.setAttribute("name", 'u[]');
+//         url.appendChild(temp7);
+//
+//         var temp8 = document.createElement('INPUT');
+//         temp8.setAttribute("type", "hidden");
+//         temp8.setAttribute("value",  data.streams[i].channel.views);
+//         temp8.setAttribute("name", 'v[]');
+//         views.appendChild(temp8);
+//       };
+//
+//       //var auto_refresh = setInterval(function(){submitform();}, 5000);
+//
+//       //function submitform(){
+//         document.forms["myForm"].submit();
+//       //}
+//
+//
+//     }
+//   });
+//
+//
+// });
+
+      //for both
+      function convertLang(lang){
+        var langArray = ['da', 'de', 'en', 'en-gb', 'es', 'es-mx', 'fr', 'it', 'hu', 'nl', 'no', 'pl', 'pt', 'pt-br',
+      'sk', 'fi', 'sv', 'vi', 'tr', 'cs', 'el', 'bg', 'ru', 'ar', 'th', 'zh-cn', 'zh-tw', 'ja', 'ko'];
+        var displayLangArray = ['Dansk', 'Deutsch', 'English', 'English - UK', 'Español', 'Español - Latinoamérica',
+      'Français', 'Italiano', 'Magyar', 'Nederlands', 'Norsk', 'Polski', 'Português', 'Português - Brasil', 'Slovenčina',
+      'Suomi', 'Svenska', 'Tiếng Việt', 'Türkçe', 'Čeština', 'Ελληνικά', 'Български', 'Русский', 'العربية', 'ภาษาไทย',
+      '中文 简体', '中文 繁體', '日本語', '한국어'];
+        for(var i = 0; i<langArray.length; i++){
+          if(langArray[i] == lang){
+            return displayLangArray[i];
+          }
+        }
+        return "other";
+      }
+  </script>
+</body>
+</html>
